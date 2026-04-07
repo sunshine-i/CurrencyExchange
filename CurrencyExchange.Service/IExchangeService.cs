@@ -10,9 +10,18 @@ namespace CurrencyExchange.Service
     public interface IExchangeService
     {
         [OperationContract]
+        [FaultContract(typeof(ExchangeServiceFault))]
         Task<List<ExchangeRateDto>> GetExchangeRates();
 
         [OperationContract]
+        [FaultContract(typeof(ExchangeServiceFault))]
         Task<double> GetExchangeRate(string currencyCode);
+
+        [OperationContract]
+        [FaultContract(typeof(ExchangeServiceFault))]
+        Task<ExchangeResultDto> ExchangeCurrency(ExchangeRequestDto request);
+
+        
+
     }
 }

@@ -72,11 +72,16 @@
     <Compile Include="ExchangeService.svc.cs">
       <DependentUpon>ExchangeService.svc</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\ExchangeCalculator.cs" />
     <Compile Include="Helpers\NbpApiClient.cs" />
     <Compile Include="IExchangeService.cs" />
+    <Compile Include="Models\ExchangeServiceFault.cs" />
     <Compile Include="Models\ExchangeRateDto.cs" />
+    <Compile Include="Models\ExchangeRequestDto.cs" />
+    <Compile Include="Models\ExchangeResultDto.cs" />
     <Compile Include="Models\NbpRate.cs" />
     <Compile Include="Models\NbpTable.cs" />
+    <Compile Include="Models\RateInfoDto.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

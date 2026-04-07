@@ -1,14 +1,17 @@
-﻿using Newtonsoft.Json;
+﻿using System.Runtime.Serialization;
 
 namespace CurrencyExchange.Service.Models
 {
-    public class NbpRate
+    [DataContract]
+    public class RateInfoDto
     {
-        [JsonProperty("currency")]
+        [DataMember]
         public string Currency { get; set; } = string.Empty;
-        [JsonProperty("code")]
+
+        [DataMember]
         public string Code { get; set; } = string.Empty;
-        [JsonProperty("mid")]
+
+        [DataMember]
         public double Mid { get; set; }
     }
 }

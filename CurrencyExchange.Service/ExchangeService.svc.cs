@@ -3,6 +3,7 @@ using CurrencyExchange.Service.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.ServiceModel;
 using System.Threading.Tasks;
 
 namespace CurrencyExchange.Service
@@ -16,9 +17,19 @@ namespace CurrencyExchange.Service
 
         public async Task<List<ExchangeRateDto>> GetExchangeRates()
         {
-            var exchangeRates = await _nbpApiClient.GetExchangeRatesAsync();
+            var exchangeRates = await _nbpApiClient.GetExchangeRatesAsync().ConfigureAwait(false);
+            var table = exchangeRates.FirstOrDefault();
 
-            return exchangeRates.FirstOrDefault()?.Rates.Select(r => new ExchangeRateDto
+            if (table == null)
+            {
+                throw new FaultException<ExchangeServiceFault>(new ExchangeServiceFault
+                {
+                    Message = "No exchange rates available.",
+                    ErrorCode = "NoRatesAvailable"
+                }, new FaultReason("No exchange rates available"));
+            }
+
+            return table.Rates.Select(r => new ExchangeRateDto
             {
                 CurrencyCode = r.Code,
                 CurrencyName = r.Currency,
@@ -28,9 +39,16 @@ namespace CurrencyExchange.Service
 
         public async Task<double> GetExchangeRate(string currencyCode)
         {
-            var exchangeRates = await _nbpApiClient.GetExchangeRatesAsync();
-            return exchangeRates.FirstOrDefault()?.Rates.FirstOrDefault(r => 
+            var exchangeRates = await _nbpApiClient.GetExchangeRatesAsync().ConfigureAwait(false);
+            return exchangeRates.FirstOrDefault()?.Rates.FirstOrDefault(r =>
                 r.Code.Equals(currencyCode, StringComparison.OrdinalIgnoreCase))?.Mid ?? 0.0;
+        }
+
+        public async Task<ExchangeResultDto> ExchangeCurrency(ExchangeRequestDto request)
+        {
+            var exchangeRates = await GetExchangeRates().ConfigureAwait(false);
+            var calculator = new ExchangeCalculator();
+            return calculator.Calculate(request, exchangeRates);
         }
     }
 }
