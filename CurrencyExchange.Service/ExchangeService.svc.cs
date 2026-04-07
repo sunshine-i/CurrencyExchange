@@ -1,10 +1,12 @@
-﻿using CurrencyExchange.Service.Models;
+﻿using CurrencyExchange.Service.Helpers;
+using CurrencyExchange.Service.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace CurrencyExchange.Service
 {
@@ -12,23 +14,26 @@ namespace CurrencyExchange.Service
     // NOTE: In order to launch WCF Test Client for testing this service, please select ExchangeService.svc or ExchangeService.svc.cs at the Solution Explorer and start debugging.
     public class ExchangeService : IExchangeService
     {
-        public List<ExchangeRateDto> GetExchangeRates()
+
+        private readonly NbpApiClient _nbpApiClient = new NbpApiClient();
+
+        public async Task<List<ExchangeRateDto>> GetExchangeRates()
         {
-            var rates = new List<ExchangeRateDto>()
+            var exchangeRates = await _nbpApiClient.GetExchangeRatesAsync();
+
+            return exchangeRates.FirstOrDefault()?.Rates.Select(r => new ExchangeRateDto
             {
-                new ExchangeRateDto()
-                {
-                    CurrencyCode = "USD",
-                    CurrencyName = "US Dollar",
-                    Mid = 3.75
-                }
-            };
-            return rates;
+                CurrencyCode = r.Code,
+                CurrencyName = r.Currency,
+                Mid = r.Mid
+            }).ToList();
         }
 
-        public double GetExchangeRate(string currencyCode)
+        public async Task<double> GetExchangeRate(string currencyCode)
         {
-            return 0.0;
+            var exchangeRates = await _nbpApiClient.GetExchangeRatesAsync();
+            return exchangeRates.FirstOrDefault()?.Rates.FirstOrDefault(r => 
+                r.Code.Equals(currencyCode, StringComparison.OrdinalIgnoreCase))?.Mid ?? 0.0;
         }
     }
 }

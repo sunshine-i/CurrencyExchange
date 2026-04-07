@@ -1,6 +1,7 @@
 ﻿using CurrencyExchange.Service.Models;
 using System.Collections.Generic;
 using System.ServiceModel;
+using System.Threading.Tasks;
 
 namespace CurrencyExchange.Service
 {
@@ -9,9 +10,9 @@ namespace CurrencyExchange.Service
     public interface IExchangeService
     {
         [OperationContract]
-        List<ExchangeRateDto> GetExchangeRates();
+        Task<List<ExchangeRateDto>> GetExchangeRates();
 
         [OperationContract]
-        double GetExchangeRate(string currencyCode);
+        Task<double> GetExchangeRate(string currencyCode);
     }
 }
