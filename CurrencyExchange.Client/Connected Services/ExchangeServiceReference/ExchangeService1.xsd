@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/CurrencyExchange.Service.Models" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/CurrencyExchange.Service.Models" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:complexType name="ArrayOfExchangeRateDto">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="ExchangeRateDto" nillable="true" type="tns:ExchangeRateDto" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfExchangeRateDto" nillable="true" type="tns:ArrayOfExchangeRateDto" />
+  <xs:complexType name="ExchangeRateDto">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="CurrencyCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="CurrencyName" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Mid" type="xs:double" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ExchangeRateDto" nillable="true" type="tns:ExchangeRateDto" />
+  <xs:complexType name="ExchangeServiceFault">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ErrorCode" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Message" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ExchangeServiceFault" nillable="true" type="tns:ExchangeServiceFault" />
+  <xs:complexType name="ExchangeRequestDto">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Amount" type="xs:double" />
+      <xs:element minOccurs="0" name="FromCurrency" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="ToCurrency" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ExchangeRequestDto" nillable="true" type="tns:ExchangeRequestDto" />
+  <xs:complexType name="ExchangeResultDto">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Amount" type="xs:double" />
+      <xs:element minOccurs="0" name="Rate" nillable="true" type="tns:ArrayOfRateInfoDto" />
+      <xs:element minOccurs="0" name="Timestamp" type="xs:dateTime" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ExchangeResultDto" nillable="true" type="tns:ExchangeResultDto" />
+  <xs:complexType name="ArrayOfRateInfoDto">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="RateInfoDto" nillable="true" type="tns:RateInfoDto" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfRateInfoDto" nillable="true" type="tns:ArrayOfRateInfoDto" />
+  <xs:complexType name="RateInfoDto">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Code" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Currency" nillable="true" type="xs:string" />
+      <xs:element minOccurs="0" name="Mid" type="xs:double" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="RateInfoDto" nillable="true" type="tns:RateInfoDto" />
+</xs:schema>
