@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
 using System.Data.SqlClient;
 using System.Security.Cryptography;
 using System.Text;
@@ -46,13 +47,17 @@ namespace CurrencyExchange.Database.Services
                 using (var conn = OpenConnection())
                 using (var cmd = new SqlCommand(sql, conn))
                 {
-                    cmd.Parameters.AddWithValue("@Username", username);
-                    cmd.Parameters.AddWithValue("@Hash", HashPassword(password));
+                    cmd.Parameters.Add("@Username", SqlDbType.NVarChar, 50).Value = username;
+                    cmd.Parameters.Add("@Hash", SqlDbType.NVarChar, 64).Value = HashPassword(password);
 
                     using (var reader = cmd.ExecuteReader())
                     {
                         if (reader.Read())
-                            return new User { UserId = (int)reader["UserId"], Username = (string)reader["Username"] };
+                            return new User
+                            {
+                                UserId = (int)reader["UserId"],
+                                Username = (string)reader["Username"]
+                            };
                     }
                 }
             }
@@ -78,13 +83,17 @@ namespace CurrencyExchange.Database.Services
             using (var conn = OpenConnection())
             using (var cmd = new SqlCommand(sql, conn))
             {
-                cmd.Parameters.AddWithValue("@Username", username);
-                cmd.Parameters.AddWithValue("@Hash", HashPassword(password));
+                cmd.Parameters.Add("@Username", SqlDbType.NVarChar, 50).Value = username;
+                cmd.Parameters.Add("@Hash", SqlDbType.NVarChar, 64).Value = HashPassword(password);
 
                 using (var reader = cmd.ExecuteReader())
                 {
                     if (reader.Read())
-                        return new User { UserId = (int)reader["UserId"], Username = (string)reader["Username"] };
+                        return new User
+                        {
+                            UserId = (int)reader["UserId"],
+                            Username = (string)reader["Username"]
+                        };
                 }
             }
 
