@@ -24,12 +24,23 @@ namespace CurrencyExchange.Client.Views
 
             _vm.NavigateToRegister += () =>
             {
+                Hide();
+
                 var registerWindow = new RegisterWindow();
-                if (registerWindow.ShowDialog() == true)
+                registerWindow.Show();
+
+                registerWindow.RegisterSucceeded += user =>
                 {
-                    LoggedInUser = registerWindow.RegisteredUser;
+                    LoggedInUser = user;
+                    registerWindow.Close();
                     DialogResult = true;
-                }
+                };
+
+                registerWindow.BackToLogin += () =>
+                {
+                    registerWindow.Close();
+                    Show();
+                };
             };
         }
 

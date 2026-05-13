@@ -12,17 +12,21 @@ namespace CurrencyExchange.Client
             // Prevent the default MainWindow from opening automatically
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
+            ShowLogin();
+        }
+
+        public static void ShowLogin()
+        {
             var loginWindow = new LoginWindow();
             if (loginWindow.ShowDialog() == true)
             {
                 var mainWindow = new MainWindow(loginWindow.LoggedInUser);
-                ShutdownMode = ShutdownMode.OnMainWindowClose;
-                MainWindow = mainWindow;
+                Current.MainWindow = mainWindow;
                 mainWindow.Show();
             }
             else
             {
-                Shutdown();
+                Current.Shutdown();
             }
         }
     }

@@ -1,5 +1,6 @@
 using CurrencyExchange.Client.ViewModels;
 using CurrencyExchange.Database.Models;
+using System;
 using System.Windows;
 
 namespace CurrencyExchange.Client.Views
@@ -8,7 +9,8 @@ namespace CurrencyExchange.Client.Views
     {
         private readonly RegisterViewModel _vm;
 
-        public User RegisteredUser { get; private set; }
+        public event Action<User> RegisterSucceeded;
+        public event Action BackToLogin;
 
         public RegisterWindow()
         {
@@ -16,17 +18,8 @@ namespace CurrencyExchange.Client.Views
             _vm = new RegisterViewModel();
             DataContext = _vm;
 
-            _vm.RegisterSucceeded += user =>
-            {
-                RegisteredUser = user;
-                DialogResult = true;
-            };
-
-            _vm.NavigateToLogin += () =>
-            {
-                DialogResult = false;
-                Close();
-            };
+            _vm.RegisterSucceeded += user => RegisterSucceeded?.Invoke(user);
+            _vm.NavigateToLogin += () => BackToLogin?.Invoke();
         }
 
         private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
