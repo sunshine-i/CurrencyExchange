@@ -205,7 +205,7 @@
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Available: " Foreground="#848E9C"
                                            FontSize="12" FontFamily="Segoe UI"/>
-                                <TextBlock Text="{Binding FromBalance, StringFormat=N2}"
+                                <TextBlock Text="{Binding FromBalance, StringFormat=N4}"
                                            Foreground="#F0B90B" FontWeight="SemiBold"
                                            FontSize="12" FontFamily="Segoe UI"/>
                                 <TextBlock Text=" " Foreground="#848E9C" FontSize="12"/>
@@ -260,7 +260,7 @@
 
             <!-- RIGHT — Result Panel -->
             <StackPanel Grid.Column="2"
-                        Visibility="{Binding Result, Converter={StaticResource NullToVisibilityConverter}}">
+                        Visibility="{Binding HasResult, Converter={StaticResource BoolToVisibilityConverter}}">
 
                 <TextBlock Text="Result" FontSize="20" FontWeight="Bold"
                            Foreground="#EAECEF" FontFamily="Segoe UI"/>
@@ -273,55 +273,28 @@
                     <StackPanel>
 
                         <TextBlock Text="CONVERTED AMOUNT" Style="{StaticResource Label}"/>
-                        <TextBlock Text="{Binding Result.Amount, StringFormat=N2}"
+                        <TextBlock Text="{Binding ResultAmount, StringFormat=N4}"
                                    FontSize="32" FontWeight="Bold"
                                    Foreground="#0ECB81" FontFamily="Segoe UI"
                                    Margin="0 0 0 24"/>
 
                         <Border Height="1" Background="#1E2329" Margin="0 0 0 24"/>
 
-                        <TextBlock Text="RATES USED" Style="{StaticResource Label}"
-                                   Margin="0 0 0 12"/>
+                        <TextBlock Text="RATE" Style="{StaticResource Label}"
+                                   Margin="0 0 0 8"/>
 
-                        <ItemsControl ItemsSource="{Binding Result.Rate}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Background="#1E2329" CornerRadius="6"
-                                            Padding="14 12" Margin="0 0 0 8">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <StackPanel Grid.Column="0">
-                                                <TextBlock Text="{Binding Code}"
-                                                           FontWeight="Bold" Foreground="#EAECEF"
-                                                           FontFamily="Segoe UI" FontSize="13"/>
-                                                <TextBlock Text="{Binding Currency}"
-                                                           Foreground="#848E9C"
-                                                           FontFamily="Segoe UI" FontSize="11"/>
-                                            </StackPanel>
-                                            <StackPanel Grid.Column="1" HorizontalAlignment="Right">
-                                                <TextBlock Text="{Binding Mid, StringFormat=N2}"
-                                                           FontWeight="SemiBold" Foreground="#F0B90B"
-                                                           FontFamily="Segoe UI" FontSize="14"
-                                                           HorizontalAlignment="Right"/>
-                                                <TextBlock Text="PLN" Foreground="#848E9C"
-                                                           FontFamily="Segoe UI" FontSize="11"
-                                                           HorizontalAlignment="Right"/>
-                                            </StackPanel>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                        <Border Background="#1E2329" CornerRadius="6" Padding="14 12" Margin="0 0 0 24">
+                            <TextBlock Text="{Binding ResultRate}"
+                                       FontWeight="SemiBold" Foreground="#F0B90B"
+                                       FontFamily="Segoe UI" FontSize="14"/>
+                        </Border>
 
-                        <Border Height="1" Background="#1E2329" Margin="0 16 0 16"/>
+                        <Border Height="1" Background="#1E2329" Margin="0 0 0 16"/>
 
                         <Grid>
                             <TextBlock Text="EXECUTED AT" Style="{StaticResource Label}"
                                        VerticalAlignment="Center"/>
-                            <TextBlock Text="{Binding Result.Timestamp, StringFormat='yyyy-MM-dd  HH:mm:ss'}"
+                            <TextBlock Text="{Binding ResultTimestamp, StringFormat='yyyy-MM-dd  HH:mm:ss'}"
                                        Foreground="#848E9C" FontFamily="Segoe UI"
                                        FontSize="12" HorizontalAlignment="Right"
                                        VerticalAlignment="Center"/>

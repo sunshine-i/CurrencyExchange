@@ -183,10 +183,10 @@
                     </DataGridTemplateColumn>
 
                     <!-- Rate (only for EXCHANGE rows) -->
-                    <DataGridTemplateColumn Header="RATE (PLN)" Width="140">
+                    <DataGridTemplateColumn Header="RATE" Width="200">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Rate, StringFormat=N2}"
+                                <TextBlock Text="{Binding Rate}"
                                            Foreground="#F0B90B" FontFamily="Segoe UI"
                                            VerticalAlignment="Center"/>
                             </DataTemplate>

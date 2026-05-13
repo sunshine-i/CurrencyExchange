@@ -5,12 +5,12 @@ namespace CurrencyExchange.Database.Models
     public class Transaction
     {
         public int TransactionId { get; set; }
-        public string Type { get; set; }           // "TOPUP" or "EXCHANGE"
+        public string Type { get; set; }
         public string FromCurrency { get; set; }
         public string ToCurrency { get; set; }
         public double? FromAmount { get; set; }
         public double? ToAmount { get; set; }
-        public double? Rate { get; set; }
+        public string Rate { get; set; }
         public DateTime Timestamp { get; set; }
 
         // Display helper shown in the history table

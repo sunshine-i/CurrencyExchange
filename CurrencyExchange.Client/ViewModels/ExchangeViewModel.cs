@@ -81,11 +81,32 @@ namespace CurrencyExchange.Client.ViewModels
             set => SetProperty(ref _hasPreviewRate, value);
         }
 
-        private ExchangeResult _result;
-        public ExchangeResult Result
+        private bool _hasResult;
+        public bool HasResult
         {
-            get => _result;
-            set => SetProperty(ref _result, value);
+            get => _hasResult;
+            set => SetProperty(ref _hasResult, value);
+        }
+
+        private double _resultAmount;
+        public double ResultAmount
+        {
+            get => _resultAmount;
+            set => SetProperty(ref _resultAmount, value);
+        }
+
+        private string _resultRate;
+        public string ResultRate
+        {
+            get => _resultRate;
+            set => SetProperty(ref _resultRate, value);
+        }
+
+        private DateTime _resultTimestamp;
+        public DateTime ResultTimestamp
+        {
+            get => _resultTimestamp;
+            set => SetProperty(ref _resultTimestamp, value);
         }
 
         private string _errorMessage;
@@ -140,7 +161,7 @@ namespace CurrencyExchange.Client.ViewModels
                     Amount = 1.0
                 };
                 var response = await _client.ExchangeCurrencyAsync(request);
-                PreviewRate = $"1 {FromCurrency} = {response.Amount:N2} {ToCurrency}";
+                PreviewRate = $"1 {FromCurrency} = {response.Amount:N4} {ToCurrency}";
                 HasPreviewRate = true;
             }
             catch
@@ -171,7 +192,7 @@ namespace CurrencyExchange.Client.ViewModels
             try
             {
                 ErrorMessage = null;
-                Result = null;
+                HasResult = false;
 
                 if (string.IsNullOrEmpty(FromCurrency) || string.IsNullOrEmpty(ToCurrency))
                 {
@@ -193,7 +214,7 @@ namespace CurrencyExchange.Client.ViewModels
                 double balance = _db.GetBalance(_user.UserId, FromCurrency);
                 if (balance < amount)
                 {
-                    ErrorMessage = $"Insufficient balance. You have {balance:N2} {FromCurrency}, need {amount:N2}.";
+                    ErrorMessage = $"Insufficient balance. You have {balance:N4} {FromCurrency}, need {amount:N4}.";
                     return;
                 }
 
@@ -205,21 +226,15 @@ namespace CurrencyExchange.Client.ViewModels
                 };
 
                 var response = await _client.ExchangeCurrencyAsync(request);
-                double rate = response.Rate?.FirstOrDefault()?.Mid ?? 0.0;
 
-                _db.RecordExchange(_user.UserId, FromCurrency, ToCurrency, amount, response.Amount, rate);
+                string rateString = $"1 {FromCurrency} = {response.Amount / amount:N4} {ToCurrency}";
 
-                Result = new ExchangeResult
-                {
-                    Amount = response.Amount,
-                    Timestamp = response.Timestamp,
-                    Rate = response.Rate?.Select(r => new RateInfo
-                    {
-                        Currency = r.Currency,
-                        Code = r.Code,
-                        Mid = r.Mid
-                    }).ToList()
-                };
+                _db.RecordExchange(_user.UserId, FromCurrency, ToCurrency, amount, response.Amount, rateString);
+
+                HasResult = true;
+                ResultAmount = response.Amount;
+                ResultRate = rateString;
+                ResultTimestamp = response.Timestamp;
 
                 UpdateFromBalance();
             }

@@ -1,3 +1,6 @@
+-- CurrencyExchange Database Setup
+-- Run this script once against your SQL Server instance
+
 CREATE DATABASE CurrencyExchangeDb;
 GO
 
@@ -7,7 +10,7 @@ GO
 CREATE TABLE Users (
     UserId       INT IDENTITY(1,1) PRIMARY KEY,
     Username     NVARCHAR(50)  NOT NULL UNIQUE,
-    PasswordHash VARCHAR(64)   NOT NULL,
+    PasswordHash VARCHAR(64) NOT NULL,
     CreatedAt    DATETIME      NOT NULL DEFAULT GETDATE()
 );
 
@@ -27,7 +30,7 @@ CREATE TABLE Transactions (
     ToCurrency     NVARCHAR(10)  NULL,
     FromAmount     FLOAT         NULL,
     ToAmount       FLOAT         NULL,
-    Rate           FLOAT         NULL,
+    Rate           NVARCHAR(50)  NULL,
     Timestamp      DATETIME      NOT NULL DEFAULT GETDATE()
 );
 GO

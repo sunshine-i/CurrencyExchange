@@ -77,7 +77,7 @@ namespace CurrencyExchange.Database.Services
             const string sql = @"
                 SELECT UserId, Username
                 FROM   Users
-                WHERE  Username = @Username
+                WHERE  Username     = @Username
                 AND    PasswordHash = @Hash";
 
             using (var conn = OpenConnection())
@@ -220,7 +220,7 @@ namespace CurrencyExchange.Database.Services
         /// Throws InvalidOperationException if balance is insufficient.
         /// </summary>
         public void RecordExchange(int userId, string fromCurrency, string toCurrency,
-                                   double fromAmount, double toAmount, double rate)
+                                   double fromAmount, double toAmount, string rate)
         {
             const string insertTx = @"
                 INSERT INTO Transactions
@@ -248,7 +248,7 @@ namespace CurrencyExchange.Database.Services
 
                     if (currentBalance < fromAmount)
                         throw new InvalidOperationException(
-                            $"Insufficient balance. You have {currentBalance:N2} {fromCurrency}, need {fromAmount:N2}.");
+                            $"Insufficient balance. You have {currentBalance:N4} {fromCurrency}, need {fromAmount:N4}.");
 
                     AdjustBalance(conn, tx, userId, fromCurrency, -fromAmount);
                     AdjustBalance(conn, tx, userId, toCurrency, toAmount);
@@ -260,7 +260,7 @@ namespace CurrencyExchange.Database.Services
                         cmd.Parameters.Add("@To", SqlDbType.NVarChar, 10).Value = toCurrency;
                         cmd.Parameters.Add("@FromAmt", SqlDbType.Float).Value = fromAmount;
                         cmd.Parameters.Add("@ToAmt", SqlDbType.Float).Value = toAmount;
-                        cmd.Parameters.Add("@Rate", SqlDbType.Float).Value = rate;
+                        cmd.Parameters.Add("@Rate", SqlDbType.NVarChar, 50).Value = rate;
                         cmd.ExecuteNonQuery();
                     }
 
@@ -302,7 +302,7 @@ namespace CurrencyExchange.Database.Services
                             ToCurrency = reader["ToCurrency"] as string,
                             FromAmount = reader["FromAmount"] as double?,
                             ToAmount = reader["ToAmount"] as double?,
-                            Rate = reader["Rate"] as double?,
+                            Rate = reader["Rate"] as string,
                             Timestamp = (DateTime)reader["Timestamp"]
                         });
                     }
