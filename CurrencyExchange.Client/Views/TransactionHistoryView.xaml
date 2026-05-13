@@ -138,7 +138,7 @@
                 <DataGrid.Columns>
 
                     <!-- Type badge -->
-                    <DataGridTemplateColumn Header="TYPE" Width="100">
+                    <DataGridTemplateColumn Header="TYPE" Width="120">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Border CornerRadius="4" Padding="8 3" HorizontalAlignment="Left"
@@ -186,7 +186,7 @@
                     <DataGridTemplateColumn Header="RATE (PLN)" Width="140">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Rate, StringFormat=N4}"
+                                <TextBlock Text="{Binding Rate, StringFormat=N2}"
                                            Foreground="#F0B90B" FontFamily="Segoe UI"
                                            VerticalAlignment="Center"/>
                             </DataTemplate>

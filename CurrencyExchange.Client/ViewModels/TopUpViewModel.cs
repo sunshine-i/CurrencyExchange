@@ -1,5 +1,6 @@
 using CurrencyExchange.Client.ExchangeServiceReference;
 using CurrencyExchange.Client.Helpers;
+using CurrencyExchange.Client.Models;
 using CurrencyExchange.Database.Models;
 using CurrencyExchange.Database.Services;
 using System;
@@ -29,11 +30,18 @@ namespace CurrencyExchange.Client.ViewModels
             set => SetProperty(ref _selectedCurrency, value);
         }
 
+        private string _amountText = "";
+        public string AmountText
+        {
+            get => _amountText;
+            set => SetProperty(ref _amountText, value);
+        }
+
         private double _amount;
         public double Amount
         {
             get => _amount;
-            set => SetProperty(ref _amount, value);
+            private set => SetProperty(ref _amount, value);
         }
 
         private string _successMessage;
@@ -103,17 +111,21 @@ namespace CurrencyExchange.Client.ViewModels
                 return;
             }
 
-            if (Amount <= 0)
+            string normalised = AmountText?.Replace(',', '.') ?? "";
+            if (!double.TryParse(normalised,
+                    System.Globalization.NumberStyles.Any,
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    out double amount) || amount <= 0)
             {
-                ErrorMessage = "Amount must be greater than zero.";
+                ErrorMessage = "Please enter a valid amount greater than zero.";
                 return;
             }
 
             try
             {
-                _db.TopUp(_user.UserId, SelectedCurrency, Amount);
-                SuccessMessage = $"Successfully added {Amount:N2} {SelectedCurrency} to your account.";
-                Amount = 0;
+                _db.TopUp(_user.UserId, SelectedCurrency, amount);
+                SuccessMessage = $"Successfully added {amount:N2} {SelectedCurrency} to your account.";
+                AmountText = "";
                 RefreshBalances();
             }
             catch (Exception ex)

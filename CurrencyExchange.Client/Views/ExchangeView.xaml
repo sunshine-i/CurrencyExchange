@@ -21,9 +21,70 @@
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Height" Value="44"/>
             <Setter Property="Padding" Value="12 0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="32"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Selected item text — explicit foreground so it's always readable -->
+                                <ContentPresenter Grid.Column="0"
+                                                  Content="{TemplateBinding SelectionBoxItem}"
+                                                  ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                                  Margin="12 0 0 0"
+                                                  VerticalAlignment="Center"
+                                                  TextBlock.Foreground="#EAECEF"
+                                                  TextBlock.FontFamily="Segoe UI"
+                                                  TextBlock.FontSize="14"/>
+
+                                <!-- Dropdown arrow -->
+                                <TextBlock Grid.Column="1" Text="▾"
+                                           Foreground="#848E9C" FontSize="12"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+
+                                <!-- Transparent toggle over full width -->
+                                <ToggleButton Grid.ColumnSpan="2"
+                                              IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                              Background="Transparent" BorderThickness="0" Opacity="0"/>
+
+                                <Popup Grid.ColumnSpan="2"
+                                       IsOpen="{TemplateBinding IsDropDownOpen}"
+                                       AllowsTransparency="True"
+                                       Placement="Bottom"
+                                       PlacementTarget="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                                    <Border Background="#1E2329"
+                                            BorderBrush="#2B3139" BorderThickness="1"
+                                            CornerRadius="4"
+                                            MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
+                                            MaxHeight="200">
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                            <ItemsPresenter/>
+                                        </ScrollViewer>
+                                    </Border>
+                                </Popup>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="BorderBrush" Value="#F0B90B"/>
+                            </Trigger>
+                            <Trigger Property="IsDropDownOpen" Value="True">
+                                <Setter Property="BorderBrush" Value="#F0B90B"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
-        <!-- This targets the individual items INSIDE the dropdown -->
         <Style TargetType="ComboBoxItem">
             <Setter Property="Background" Value="#1E2329"/>
             <Setter Property="Foreground" Value="#EAECEF"/>
@@ -34,7 +95,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBoxItem">
                         <Border Background="{TemplateBinding Background}"
-                        Padding="{TemplateBinding Padding}">
+                                Padding="{TemplateBinding Padding}">
                             <ContentPresenter/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -83,10 +144,8 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}"
-                                CornerRadius="6"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
+                                CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -118,15 +177,13 @@
                            FontSize="12" Foreground="#848E9C"
                            FontFamily="Segoe UI" Margin="0 4 0 24"/>
 
-                <!-- Trade Card -->
                 <Border Background="#161A1E" CornerRadius="8"
-                        BorderBrush="#1E2329" BorderThickness="1"
-                        Padding="24">
+                        BorderBrush="#1E2329" BorderThickness="1" Padding="24">
                     <StackPanel>
 
                         <!-- From -->
                         <TextBlock Text="FROM" Style="{StaticResource Label}"/>
-                        <Grid Margin="0 0 0 16">
+                        <Grid Margin="0 0 0 8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="140"/>
                                 <ColumnDefinition Width="12"/>
@@ -136,18 +193,19 @@
                                       ItemsSource="{Binding AvailableCurrencies}"
                                       SelectedItem="{Binding FromCurrency}"
                                       Style="{StaticResource DarkCombo}"/>
+                            <!-- Fix 1: bind to AmountText (string) not Amount (double) -->
                             <TextBox Grid.Column="2"
-                                     Text="{Binding Amount, UpdateSourceTrigger=PropertyChanged}"
+                                     Text="{Binding AmountText, UpdateSourceTrigger=PropertyChanged}"
                                      Style="{StaticResource DarkTextBox}"/>
                         </Grid>
 
-                        <!-- Available balance for FromCurrency -->
+                        <!-- Available balance -->
                         <Border Visibility="{Binding HasFromBalance, Converter={StaticResource BoolToVisibilityConverter}}"
-                                Margin="0 -8 0 16">
+                                Margin="0 0 0 12">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Available: " Foreground="#848E9C"
                                            FontSize="12" FontFamily="Segoe UI"/>
-                                <TextBlock Text="{Binding FromBalance, StringFormat=N4}"
+                                <TextBlock Text="{Binding FromBalance, StringFormat=N2}"
                                            Foreground="#F0B90B" FontWeight="SemiBold"
                                            FontSize="12" FontFamily="Segoe UI"/>
                                 <TextBlock Text=" " Foreground="#848E9C" FontSize="12"/>
@@ -157,7 +215,7 @@
                         </Border>
 
                         <!-- Swap arrow -->
-                        <Border HorizontalAlignment="Center" Margin="0 0 0 16">
+                        <Border HorizontalAlignment="Center" Margin="0 0 0 8">
                             <TextBlock Text="⇅" FontSize="20" Foreground="#F0B90B"
                                        FontFamily="Segoe UI"/>
                         </Border>
@@ -167,7 +225,20 @@
                         <ComboBox ItemsSource="{Binding AvailableCurrencies}"
                                   SelectedItem="{Binding ToCurrency}"
                                   Style="{StaticResource DarkCombo}"
-                                  Margin="0 0 0 24"/>
+                                  Margin="0 0 0 12"/>
+
+                        <!-- Fix 2: live conversion rate preview -->
+                        <Border Visibility="{Binding HasPreviewRate, Converter={StaticResource BoolToVisibilityConverter}}"
+                                Background="#1A2030" CornerRadius="4"
+                                Padding="12 8" Margin="0 0 0 16">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Rate:  " Foreground="#848E9C"
+                                           FontSize="12" FontFamily="Segoe UI"/>
+                                <TextBlock Text="{Binding PreviewRate}"
+                                           Foreground="#F0B90B" FontWeight="SemiBold"
+                                           FontSize="12" FontFamily="Segoe UI"/>
+                            </StackPanel>
+                        </Border>
 
                         <!-- Error -->
                         <Border Background="#2A1A1A" CornerRadius="4"
@@ -197,24 +268,18 @@
                            Foreground="#848E9C" FontFamily="Segoe UI"
                            Margin="0 4 0 24"/>
 
-                <!-- Result Card -->
                 <Border Background="#161A1E" CornerRadius="8"
-                        BorderBrush="#1E2329" BorderThickness="1"
-                        Padding="24">
+                        BorderBrush="#1E2329" BorderThickness="1" Padding="24">
                     <StackPanel>
 
-                        <!-- Converted Amount -->
                         <TextBlock Text="CONVERTED AMOUNT" Style="{StaticResource Label}"/>
-                        <TextBlock Text="{Binding Result.Amount, StringFormat=N4}"
+                        <TextBlock Text="{Binding Result.Amount, StringFormat=N2}"
                                    FontSize="32" FontWeight="Bold"
-                                   Foreground="#0ECB81"
-                                   FontFamily="Segoe UI"
+                                   Foreground="#0ECB81" FontFamily="Segoe UI"
                                    Margin="0 0 0 24"/>
 
-                        <!-- Divider -->
                         <Border Height="1" Background="#1E2329" Margin="0 0 0 24"/>
 
-                        <!-- Rates Used -->
                         <TextBlock Text="RATES USED" Style="{StaticResource Label}"
                                    Margin="0 0 0 12"/>
 
@@ -230,26 +295,19 @@
                                             </Grid.ColumnDefinitions>
                                             <StackPanel Grid.Column="0">
                                                 <TextBlock Text="{Binding Code}"
-                                                           FontWeight="Bold"
-                                                           Foreground="#EAECEF"
-                                                           FontFamily="Segoe UI"
-                                                           FontSize="13"/>
+                                                           FontWeight="Bold" Foreground="#EAECEF"
+                                                           FontFamily="Segoe UI" FontSize="13"/>
                                                 <TextBlock Text="{Binding Currency}"
                                                            Foreground="#848E9C"
-                                                           FontFamily="Segoe UI"
-                                                           FontSize="11"/>
+                                                           FontFamily="Segoe UI" FontSize="11"/>
                                             </StackPanel>
                                             <StackPanel Grid.Column="1" HorizontalAlignment="Right">
-                                                <TextBlock Text="{Binding Mid, StringFormat=N4}"
-                                                           FontWeight="SemiBold"
-                                                           Foreground="#F0B90B"
-                                                           FontFamily="Segoe UI"
-                                                           FontSize="14"
+                                                <TextBlock Text="{Binding Mid, StringFormat=N2}"
+                                                           FontWeight="SemiBold" Foreground="#F0B90B"
+                                                           FontFamily="Segoe UI" FontSize="14"
                                                            HorizontalAlignment="Right"/>
-                                                <TextBlock Text="PLN"
-                                                           Foreground="#848E9C"
-                                                           FontFamily="Segoe UI"
-                                                           FontSize="11"
+                                                <TextBlock Text="PLN" Foreground="#848E9C"
+                                                           FontFamily="Segoe UI" FontSize="11"
                                                            HorizontalAlignment="Right"/>
                                             </StackPanel>
                                         </Grid>
@@ -258,10 +316,8 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
 
-                        <!-- Divider -->
                         <Border Height="1" Background="#1E2329" Margin="0 16 0 16"/>
 
-                        <!-- Timestamp -->
                         <Grid>
                             <TextBlock Text="EXECUTED AT" Style="{StaticResource Label}"
                                        VerticalAlignment="Center"/>

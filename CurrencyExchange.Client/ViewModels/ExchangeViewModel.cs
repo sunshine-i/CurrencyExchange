@@ -31,6 +31,7 @@ namespace CurrencyExchange.Client.ViewModels
             {
                 SetProperty(ref _fromCurrency, value);
                 UpdateFromBalance();
+                UpdatePreviewRateAsync();
             }
         }
 
@@ -38,14 +39,18 @@ namespace CurrencyExchange.Client.ViewModels
         public string ToCurrency
         {
             get => _toCurrency;
-            set => SetProperty(ref _toCurrency, value);
+            set
+            {
+                SetProperty(ref _toCurrency, value);
+                UpdatePreviewRateAsync();
+            }
         }
 
-        private double _amount;
-        public double Amount
+        private string _amountText = "";
+        public string AmountText
         {
-            get => _amount;
-            set => SetProperty(ref _amount, value);
+            get => _amountText;
+            set => SetProperty(ref _amountText, value);
         }
 
         private double _fromBalance;
@@ -60,6 +65,20 @@ namespace CurrencyExchange.Client.ViewModels
         {
             get => _hasFromBalance;
             set => SetProperty(ref _hasFromBalance, value);
+        }
+
+        private string _previewRate;
+        public string PreviewRate
+        {
+            get => _previewRate;
+            set => SetProperty(ref _previewRate, value);
+        }
+
+        private bool _hasPreviewRate;
+        public bool HasPreviewRate
+        {
+            get => _hasPreviewRate;
+            set => SetProperty(ref _hasPreviewRate, value);
         }
 
         private ExchangeResult _result;
@@ -98,6 +117,38 @@ namespace CurrencyExchange.Client.ViewModels
             HasFromBalance = true;
         }
 
+        private async void UpdatePreviewRateAsync()
+        {
+            HasPreviewRate = false;
+            PreviewRate = null;
+
+            if (string.IsNullOrEmpty(FromCurrency) || string.IsNullOrEmpty(ToCurrency))
+                return;
+            if (FromCurrency == ToCurrency)
+            {
+                PreviewRate = $"1 {FromCurrency} = 1 {ToCurrency}";
+                HasPreviewRate = true;
+                return;
+            }
+
+            try
+            {
+                var request = new ExchangeRequestDto
+                {
+                    FromCurrency = FromCurrency,
+                    ToCurrency = ToCurrency,
+                    Amount = 1.0
+                };
+                var response = await _client.ExchangeCurrencyAsync(request);
+                PreviewRate = $"1 {FromCurrency} = {response.Amount:N2} {ToCurrency}";
+                HasPreviewRate = true;
+            }
+            catch
+            {
+                // Silently suppress
+            }
+        }
+
         private async System.Threading.Tasks.Task LoadCurrenciesAsync()
         {
             try
@@ -128,16 +179,21 @@ namespace CurrencyExchange.Client.ViewModels
                     return;
                 }
 
-                if (Amount <= 0)
+                // Parse the string amount — handles "1.", "1.5", "1,5" etc.
+                string normalised = AmountText?.Replace(',', '.') ?? "";
+                if (!double.TryParse(normalised,
+                        System.Globalization.NumberStyles.Any,
+                        System.Globalization.CultureInfo.InvariantCulture,
+                        out double amount) || amount <= 0)
                 {
-                    ErrorMessage = "Amount must be greater than zero.";
+                    ErrorMessage = "Please enter a valid amount greater than zero.";
                     return;
                 }
 
                 double balance = _db.GetBalance(_user.UserId, FromCurrency);
-                if (balance < Amount)
+                if (balance < amount)
                 {
-                    ErrorMessage = $"Insufficient balance. You have {balance:N2} {FromCurrency}, need {Amount:N2}.";
+                    ErrorMessage = $"Insufficient balance. You have {balance:N2} {FromCurrency}, need {amount:N2}.";
                     return;
                 }
 
@@ -145,14 +201,13 @@ namespace CurrencyExchange.Client.ViewModels
                 {
                     FromCurrency = FromCurrency,
                     ToCurrency = ToCurrency,
-                    Amount = Amount
+                    Amount = amount
                 };
 
                 var response = await _client.ExchangeCurrencyAsync(request);
-
                 double rate = response.Rate?.FirstOrDefault()?.Mid ?? 0.0;
 
-                _db.RecordExchange(_user.UserId, FromCurrency, ToCurrency, Amount, response.Amount, rate);
+                _db.RecordExchange(_user.UserId, FromCurrency, ToCurrency, amount, response.Amount, rate);
 
                 Result = new ExchangeResult
                 {

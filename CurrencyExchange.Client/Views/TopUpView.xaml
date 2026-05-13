@@ -21,6 +21,61 @@
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Height" Value="44"/>
             <Setter Property="Padding" Value="12 0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="32"/>
+                                </Grid.ColumnDefinitions>
+                                <ContentPresenter Grid.Column="0"
+                                                  Content="{TemplateBinding SelectionBoxItem}"
+                                                  ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                                  Margin="12 0 0 0"
+                                                  VerticalAlignment="Center"
+                                                  TextBlock.Foreground="#EAECEF"
+                                                  TextBlock.FontFamily="Segoe UI"
+                                                  TextBlock.FontSize="14"/>
+                                <TextBlock Grid.Column="1" Text="▾"
+                                           Foreground="#848E9C" FontSize="12"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                                <ToggleButton Grid.ColumnSpan="2"
+                                              IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                              Background="Transparent" BorderThickness="0" Opacity="0"/>
+                                <Popup Grid.ColumnSpan="2"
+                                       IsOpen="{TemplateBinding IsDropDownOpen}"
+                                       AllowsTransparency="True"
+                                       Placement="Bottom"
+                                       PlacementTarget="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                                    <Border Background="#1E2329"
+                                            BorderBrush="#2B3139" BorderThickness="1"
+                                            CornerRadius="4"
+                                            MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
+                                            MaxHeight="200">
+                                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                            <ItemsPresenter/>
+                                        </ScrollViewer>
+                                    </Border>
+                                </Popup>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="BorderBrush" Value="#F0B90B"/>
+                            </Trigger>
+                            <Trigger Property="IsDropDownOpen" Value="True">
+                                <Setter Property="BorderBrush" Value="#F0B90B"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style TargetType="ComboBoxItem">
@@ -126,7 +181,7 @@
 
                         <!-- Amount -->
                         <TextBlock Text="AMOUNT" Style="{StaticResource Label}"/>
-                        <TextBox Text="{Binding Amount, UpdateSourceTrigger=PropertyChanged}"
+                        <TextBox Text="{Binding AmountText, UpdateSourceTrigger=PropertyChanged}"
                                  Style="{StaticResource DarkTextBox}"
                                  Margin="0 0 0 24"/>
 
@@ -186,7 +241,7 @@
                                                        VerticalAlignment="Center"/>
                                         </StackPanel>
                                         <TextBlock Grid.Column="1"
-                                                   Text="{Binding Amount, StringFormat=N4}"
+                                                   Text="{Binding Amount, StringFormat=N2}"
                                                    FontWeight="SemiBold" FontSize="14"
                                                    Foreground="#0ECB81" FontFamily="Segoe UI"
                                                    VerticalAlignment="Center"/>

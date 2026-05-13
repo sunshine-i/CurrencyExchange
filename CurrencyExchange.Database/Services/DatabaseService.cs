@@ -248,7 +248,7 @@ namespace CurrencyExchange.Database.Services
 
                     if (currentBalance < fromAmount)
                         throw new InvalidOperationException(
-                            $"Insufficient balance. You have {currentBalance:N4} {fromCurrency}, need {fromAmount:N4}.");
+                            $"Insufficient balance. You have {currentBalance:N2} {fromCurrency}, need {fromAmount:N2}.");
 
                     AdjustBalance(conn, tx, userId, fromCurrency, -fromAmount);
                     AdjustBalance(conn, tx, userId, toCurrency, toAmount);
