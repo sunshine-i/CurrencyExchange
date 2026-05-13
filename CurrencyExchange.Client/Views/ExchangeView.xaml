@@ -141,6 +141,21 @@
                                      Style="{StaticResource DarkTextBox}"/>
                         </Grid>
 
+                        <!-- Available balance for FromCurrency -->
+                        <Border Visibility="{Binding HasFromBalance, Converter={StaticResource BoolToVisibilityConverter}}"
+                                Margin="0 -8 0 16">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Available: " Foreground="#848E9C"
+                                           FontSize="12" FontFamily="Segoe UI"/>
+                                <TextBlock Text="{Binding FromBalance, StringFormat=N4}"
+                                           Foreground="#F0B90B" FontWeight="SemiBold"
+                                           FontSize="12" FontFamily="Segoe UI"/>
+                                <TextBlock Text=" " Foreground="#848E9C" FontSize="12"/>
+                                <TextBlock Text="{Binding FromCurrency}"
+                                           Foreground="#848E9C" FontSize="12" FontFamily="Segoe UI"/>
+                            </StackPanel>
+                        </Border>
+
                         <!-- Swap arrow -->
                         <Border HorizontalAlignment="Center" Margin="0 0 0 16">
                             <TextBlock Text="⇅" FontSize="20" Foreground="#F0B90B"

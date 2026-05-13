@@ -1,17 +1,29 @@
-﻿using CurrencyExchange.Client.ViewModels;
+using CurrencyExchange.Client.ViewModels;
+using CurrencyExchange.Client.Views;
+using CurrencyExchange.Database.Models;
 using System.Windows;
 
 namespace CurrencyExchange.Client
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
+        public MainWindow(User user)
         {
             InitializeComponent();
-            DataContext = new MainViewModel();
+            var vm = new MainViewModel(user);
+            vm.LogoutRequested += () =>
+            {
+                // Show login window again; if successful open a new MainWindow
+                var loginWindow = new LoginWindow();
+                if (loginWindow.ShowDialog() == true)
+                {
+                    var newMain = new MainWindow(loginWindow.LoggedInUser);
+                    Application.Current.MainWindow = newMain;
+                    newMain.Show();
+                }
+                Close();
+            };
+            DataContext = vm;
         }
     }
 }

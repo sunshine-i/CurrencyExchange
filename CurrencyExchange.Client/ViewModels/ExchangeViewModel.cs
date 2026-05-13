@@ -1,12 +1,11 @@
 ﻿using CurrencyExchange.Client.ExchangeServiceReference;
 using CurrencyExchange.Client.Helpers;
 using CurrencyExchange.Client.Models;
+using CurrencyExchange.Database.Models;
+using CurrencyExchange.Database.Services;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace CurrencyExchange.Client.ViewModels
@@ -14,6 +13,8 @@ namespace CurrencyExchange.Client.ViewModels
     public class ExchangeViewModel : ViewModelBase
     {
         private readonly ExchangeServiceClient _client = new ExchangeServiceClient();
+        private readonly DatabaseService _db = new DatabaseService();
+        private readonly User _user;
 
         private ObservableCollection<string> _availableCurrencies = new ObservableCollection<string>();
         public ObservableCollection<string> AvailableCurrencies
@@ -26,7 +27,11 @@ namespace CurrencyExchange.Client.ViewModels
         public string FromCurrency
         {
             get => _fromCurrency;
-            set => SetProperty(ref _fromCurrency, value);
+            set
+            {
+                SetProperty(ref _fromCurrency, value);
+                UpdateFromBalance();
+            }
         }
 
         private string _toCurrency;
@@ -41,6 +46,20 @@ namespace CurrencyExchange.Client.ViewModels
         {
             get => _amount;
             set => SetProperty(ref _amount, value);
+        }
+
+        private double _fromBalance;
+        public double FromBalance
+        {
+            get => _fromBalance;
+            set => SetProperty(ref _fromBalance, value);
+        }
+
+        private bool _hasFromBalance;
+        public bool HasFromBalance
+        {
+            get => _hasFromBalance;
+            set => SetProperty(ref _hasFromBalance, value);
         }
 
         private ExchangeResult _result;
@@ -60,11 +79,23 @@ namespace CurrencyExchange.Client.ViewModels
         public ICommand LoadCurrenciesCommand { get; }
         public ICommand PerformExchangeCommand { get; }
 
-        public ExchangeViewModel()
+        public ExchangeViewModel(User user)
         {
+            _user = user;
             LoadCurrenciesCommand = new RelayCommand(async _ => await LoadCurrenciesAsync());
             PerformExchangeCommand = new RelayCommand(async _ => await PerformExchangeAsync());
             LoadCurrenciesCommand.Execute(null);
+        }
+
+        private void UpdateFromBalance()
+        {
+            if (_user == null || string.IsNullOrEmpty(FromCurrency))
+            {
+                HasFromBalance = false;
+                return;
+            }
+            FromBalance = _db.GetBalance(_user.UserId, FromCurrency);
+            HasFromBalance = true;
         }
 
         private async System.Threading.Tasks.Task LoadCurrenciesAsync()
@@ -91,6 +122,25 @@ namespace CurrencyExchange.Client.ViewModels
                 ErrorMessage = null;
                 Result = null;
 
+                if (string.IsNullOrEmpty(FromCurrency) || string.IsNullOrEmpty(ToCurrency))
+                {
+                    ErrorMessage = "Please select both currencies.";
+                    return;
+                }
+
+                if (Amount <= 0)
+                {
+                    ErrorMessage = "Amount must be greater than zero.";
+                    return;
+                }
+
+                double balance = _db.GetBalance(_user.UserId, FromCurrency);
+                if (balance < Amount)
+                {
+                    ErrorMessage = $"Insufficient balance. You have {balance:N2} {FromCurrency}, need {Amount:N2}.";
+                    return;
+                }
+
                 var request = new ExchangeRequestDto
                 {
                     FromCurrency = FromCurrency,
@@ -99,6 +149,10 @@ namespace CurrencyExchange.Client.ViewModels
                 };
 
                 var response = await _client.ExchangeCurrencyAsync(request);
+
+                double rate = response.Rate?.FirstOrDefault()?.Mid ?? 0.0;
+
+                _db.RecordExchange(_user.UserId, FromCurrency, ToCurrency, Amount, response.Amount, rate);
 
                 Result = new ExchangeResult
                 {
@@ -111,6 +165,12 @@ namespace CurrencyExchange.Client.ViewModels
                         Mid = r.Mid
                     }).ToList()
                 };
+
+                UpdateFromBalance();
+            }
+            catch (InvalidOperationException ex)
+            {
+                ErrorMessage = ex.Message;
             }
             catch (System.ServiceModel.FaultException ex)
             {

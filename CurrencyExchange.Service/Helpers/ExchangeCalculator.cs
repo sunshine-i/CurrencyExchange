@@ -12,28 +12,31 @@ namespace CurrencyExchange.Service.Helpers
         {
             if (request == null || rates == null)
             {
-                throw new FaultException<ExchangeServiceFault>(new ExchangeServiceFault { 
-                    Message = "Request or rates cannot be null.", 
-                    ErrorCode = "InvalidInput" 
+                throw new FaultException<ExchangeServiceFault>(new ExchangeServiceFault
+                {
+                    Message = "Request or rates cannot be null.",
+                    ErrorCode = "InvalidInput"
                 }, new FaultReason("Invalid input"));
             }
 
             if (request.Amount <= 0)
             {
-                throw new FaultException<ExchangeServiceFault>(new ExchangeServiceFault { 
-                    Message = "Amount must be greater than zero.", 
-                    ErrorCode = "InvalidAmount" 
+                throw new FaultException<ExchangeServiceFault>(new ExchangeServiceFault
+                {
+                    Message = "Amount must be greater than zero.",
+                    ErrorCode = "InvalidAmount"
                 }, new FaultReason("Invalid amount"));
             }
 
             if (request.FromCurrency.Equals(request.ToCurrency, StringComparison.OrdinalIgnoreCase))
             {
-                throw new FaultException<ExchangeServiceFault>(new ExchangeServiceFault { 
-                    Message = "FromCurrency and ToCurrency cannot be the same.", 
-                    ErrorCode = "InvalidCurrency" 
+                throw new FaultException<ExchangeServiceFault>(new ExchangeServiceFault
+                {
+                    Message = "FromCurrency and ToCurrency cannot be the same.",
+                    ErrorCode = "InvalidCurrency"
                 }, new FaultReason("Invalid currency"));
             }
-            
+
             var fromRate = rates.FirstOrDefault(r => r.CurrencyCode.Equals(request.FromCurrency, StringComparison.OrdinalIgnoreCase));
             var toRate = rates.FirstOrDefault(r => r.CurrencyCode.Equals(request.ToCurrency, StringComparison.OrdinalIgnoreCase));
 
@@ -43,29 +46,34 @@ namespace CurrencyExchange.Service.Helpers
             {
                 if (toRate == null)
                 {
-                    throw new FaultException<ExchangeServiceFault>(new ExchangeServiceFault { 
-                        Message = $"Exchange rate not found for {request.FromCurrency} to {request.ToCurrency}", 
-                        ErrorCode = "RateNotFound" 
+                    throw new FaultException<ExchangeServiceFault>(new ExchangeServiceFault
+                    {
+                        Message = $"Exchange rate not found for {request.FromCurrency} to {request.ToCurrency}",
+                        ErrorCode = "RateNotFound"
                     }, new FaultReason("Exchange rate not found"));
                 }
                 exchangeAmount = request.Amount / toRate.Mid;
             }
             else if (request.ToCurrency.Equals("PLN", StringComparison.OrdinalIgnoreCase))
             {
-                if (fromRate == null) {
-                    throw new FaultException<ExchangeServiceFault>(new ExchangeServiceFault { 
-                        Message = $"Exchange rate not found for {request.FromCurrency} to {request.ToCurrency}", 
-                        ErrorCode = "RateNotFound" 
+                if (fromRate == null)
+                {
+                    throw new FaultException<ExchangeServiceFault>(new ExchangeServiceFault
+                    {
+                        Message = $"Exchange rate not found for {request.FromCurrency} to {request.ToCurrency}",
+                        ErrorCode = "RateNotFound"
                     }, new FaultReason("Exchange rate not found"));
                 }
                 exchangeAmount = request.Amount * fromRate.Mid;
             }
             else
             {
-                if (fromRate == null || toRate == null) {
-                    throw new FaultException<ExchangeServiceFault>(new ExchangeServiceFault { 
-                        Message = $"Exchange rate not found for {request.FromCurrency} to {request.ToCurrency}", 
-                        ErrorCode = "RateNotFound" 
+                if (fromRate == null || toRate == null)
+                {
+                    throw new FaultException<ExchangeServiceFault>(new ExchangeServiceFault
+                    {
+                        Message = $"Exchange rate not found for {request.FromCurrency} to {request.ToCurrency}",
+                        ErrorCode = "RateNotFound"
                     }, new FaultReason("Exchange rate not found"));
                 }
                 exchangeAmount = request.Amount * fromRate.Mid / toRate.Mid;
@@ -77,11 +85,11 @@ namespace CurrencyExchange.Service.Helpers
                 Rate = new List<RateInfoDto> {
                     new RateInfoDto
                     {
-                        Currency = request.FromCurrency.Equals("PLN", StringComparison.OrdinalIgnoreCase) ? 
+                        Currency = request.FromCurrency.Equals("PLN", StringComparison.OrdinalIgnoreCase) ?
                             "Polish Zloty" : fromRate?.CurrencyName,
-                        Code = request.FromCurrency.Equals("PLN", StringComparison.OrdinalIgnoreCase) ? 
+                        Code = request.FromCurrency.Equals("PLN", StringComparison.OrdinalIgnoreCase) ?
                             "PLN" : fromRate?.CurrencyCode,
-                        Mid = request.FromCurrency.Equals("PLN", StringComparison.OrdinalIgnoreCase) ? 
+                        Mid = request.FromCurrency.Equals("PLN", StringComparison.OrdinalIgnoreCase) ?
                             1.0 : fromRate.Mid
                     },
                     new RateInfoDto
