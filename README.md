@@ -28,8 +28,10 @@ CurrencyExchange is a desktop application that allows users to view live currenc
 CurrencyExchange/
 ├── CurrencyExchange.Service/       # WCF web service — fetches and serves exchange rates
 ├── CurrencyExchange.Client/        # WPF desktop application (MVVM)
-└── CurrencyExchange.Database/      # Class library — database models and data access
-    └── Scripts/DatabaseSetup.sql   # SQL Server schema script
+├── CurrencyExchange.Database/      # Class library — database models and data access
+|   └── Scripts/DatabaseSetup.sql   # SQL Server schema script
+└── Documentation/                  # Documentation directory
+    └── documentation.md            # Project documentation markdown
 ```
 
 ---
